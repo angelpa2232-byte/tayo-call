@@ -1,0 +1,22 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import vm from 'node:vm';
+import {SONGS} from './songs.mjs';
+test('official player handles blocked autoplay, completion, errors and late callbacks after exit',async()=>{
+  const elements=new Map();let options,destroyed=0,played=0,completed=[];
+  const element=()=>({hidden:true,textContent:'',append(){},replaceChildren(){}});
+  const document={getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},createElement:element};
+  const window={SongCatalog:{SONGS},location:{origin:'http://127.0.0.1:8088'},YT:{PlayerState:{ENDED:0,PLAYING:1},Player:class{constructor(mount,opts){options=opts;}destroy(){destroyed++;}playVideo(){played++;}}}};
+  vm.runInNewContext(await readFile(new URL('song-player.js',import.meta.url),'utf8'),{window,document});
+  const player=new window.SongPlayer();
+  await player.play('poli',reason=>completed.push(reason));assert.equal(options.videoId,SONGS.poli.videoId);assert.equal(options.playerVars.origin,window.location.origin);
+  assert.equal(elements.get('song-panel').hidden,false);
+  options.events.onAutoplayBlocked();assert.match(elements.get('song-message').textContent,/눌러/);
+  elements.get('btn-song-play').onclick();assert.equal(played,1);
+  options.events.onStateChange({data:0});assert.deepEqual(completed,['ended']);assert.equal(elements.get('song-panel').hidden,true);
+  await player.play('tayo',reason=>completed.push(reason));const old=options;
+  player.stop();old.events.onStateChange({data:0});assert.deepEqual(completed,['ended']);assert.equal(destroyed,2);
+  await player.play('poli',reason=>completed.push(reason));options.events.onError();assert.match(elements.get('song-message').textContent,/재생할 수 없/);
+  elements.get('btn-song-close').onclick();assert.deepEqual(completed,['ended','skip']);
+});

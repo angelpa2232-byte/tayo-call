@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="bgG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3A8DFF"/>
+      <stop offset="100%" stop-color="#1555C0"/>
+    </linearGradient>
+  </defs>
+  <!-- 원형 배경 -->
+  <circle cx="100" cy="100" r="95" fill="url(#bgG)" stroke="#FFFFFF" stroke-width="6"/>
+  <!-- 타요 앞모습 간략화 -->
+  <rect x="35" y="45" width="130" height="110" rx="25" fill="#1963E4"/>
+  <rect x="45" y="60" width="110" height="55" rx="15" fill="#E8F4FD" stroke="#0E3989" stroke-width="3"/>
+  <!-- 눈 -->
+  <ellipse cx="75" cy="85" rx="12" ry="16" fill="#FFFFFF"/>
+  <ellipse cx="76" cy="86" rx="8" ry="11" fill="#111111"/>
+  <circle cx="78" cy="83" r="3" fill="#FFFFFF"/>
+
+  <ellipse cx="125" cy="85" rx="12" ry="16" fill="#FFFFFF"/>
+  <ellipse cx="124" cy="86" rx="8" ry="11" fill="#111111"/>
+  <circle cx="122" cy="83" r="3" fill="#FFFFFF"/>
+  
+  <!-- 볼터치 -->
+  <circle cx="58" cy="102" r="7" fill="rgba(255,100,120,0.6)"/>
+  <circle cx="142" cy="102" r="7" fill="rgba(255,100,120,0.6)"/>
+
+  <!-- 입 -->
+  <path d="M 85 102 Q 100 118 115 102" stroke="#D32F2F" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <!-- 헤드라이트 -->
+  <circle cx="55" cy="132" r="8" fill="#FFF176" stroke="#FBC02D" stroke-width="2"/>
+  <circle cx="145" cy="132" r="8" fill="#FFF176" stroke="#FBC02D" stroke-width="2"/>
+  <rect x="75" y="125" width="50" height="15" rx="5" fill="#FFFFFF"/>
+</svg>
+

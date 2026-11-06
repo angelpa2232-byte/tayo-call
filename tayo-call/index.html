@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>타요와 영상통화 (FaceTime with Tayo)</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="scene-motion.css">
+  <link rel="stylesheet" href="mini-games.css">
+  <link rel="stylesheet" href="vehicles.css">
+  <link rel="stylesheet" href="marine.css">
+</head>
+<body>
+  <!-- 메인 앱 컨테이너 -->
+  <div id="app" class="app-container">
+    
+    <!-- 1. 전화 수신 대기 화면 (Calling Screen) -->
+    <div id="incoming-call-screen" class="screen incoming-screen active">
+      <div class="incoming-backdrop"></div>
+      <div class="incoming-content">
+        <div class="tayo-call-avatar">
+          <div class="avatar-circle pulse-ring">
+            <img src="tayo-icon.svg" alt="타요" class="avatar-img" id="avatar-icon">
+          </div>
+        </div>
+        <h1 class="caller-name">꼬마버스 타요 🚌</h1>
+        <p class="call-subtitle">이야기 · 미니게임 · 탈것 구경을 골라요!</p>
+        <button id="btn-mini-games-entry" class="entry-game-button">🎮 미니게임 13가지 <small>풍선 팡팡 · 비눗방울 · 기차 놀이 · 그림 찾기</small></button>
+        <button id="btn-vehicles-entry" class="entry-game-button entry-vehicles-button">🚗 탈것 알아보기 <small>자동차 · 공사 차 · 비행기 · 배 20가지</small></button>
+        <button id="btn-marine-entry" class="entry-game-button entry-marine-button">🐬 해양동물 알아보기 <small>고래 · 상어 · 문어 · 바다거북 등 20종</small></button>
+        <p class="call-hint">초록색 버튼을 눌러서 받아보세요 💖</p>
+        
+        <p id="provider-status" class="call-hint">대화 방식 확인 중…</p><p id="entry-status" role="status" class="call-hint">부모님과 함께하는 AI 놀이 통화</p><button id="btn-exit-entry" class="tool-btn">⏻ 프로그램 완전 종료</button><button id="btn-parent-settings" class="tool-btn">⚙️ 부모님 설정</button><div class="call-actions">
+          <button id="btn-accept-call" class="action-btn accept-btn" title="전화 받기">
+            <svg viewBox="0 0 24 24" class="btn-icon">
+              <path fill="currentColor" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+            </svg>
+            <span>통화 받기</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 화상 통화 화면 (In-Call Screen) -->
+    <div id="active-call-screen" class="screen call-screen">
+      
+      <!-- 상단 상태바 -->
+      <header class="call-header">
+        <div class="call-status">
+          <span class="live-indicator"></span>
+          <span class="status-name">타요 · AI 놀이</span>
+          <span id="active-provider-status" class="call-timer">대화 방식 확인 중</span><span id="call-timer" class="call-timer">00:00</span>
+        </div>
+        <div class="header-tools"><button id="btn-audio-resume" class="tool-btn">🔊 소리 켜기</button>
+          <button id="btn-sound-effect" class="tool-btn" title="타요 빵빵 소리내기">🎺 빵빵!</button>
+          <button id="btn-open-settings" class="tool-btn settings-btn" title="설정 (부모님용)">⚙️</button>
+        </div>
+      </header>
+
+      <!-- 타요 캐릭터 영역 (상대방 화면) -->
+      <main class="tayo-display-area">
+        <section id="song-panel" class="song-panel" hidden aria-label="함께 노래 부르기">
+          <h2 id="song-title">함께 노래 부르기</h2><div id="song-host" class="song-host"></div>
+          <p id="song-message" role="status"></p>
+          <div class="song-actions"><button id="btn-song-tayo" type="button">타요 노래</button><button id="btn-song-poli" type="button">폴리 노래</button></div>
+          <div class="song-actions"><button id="btn-song-play" type="button">▶ 노래 재생</button><button id="btn-song-close" type="button">놀이로 돌아가기</button></div>
+          <a id="song-source" target="_blank" rel="noopener noreferrer">공식 영상</a>
+        </section>
+        <button id="btn-scene-game" class="scene-game-button" hidden>🎮 같이 놀기</button>
+        <div id="scene-art" class="scene-art"></div><div id="scene-caption" class="scene-caption"></div><div id="scene-choices" class="scene-choices"></div><div class="scenery-background">
+          <div class="cloud cloud-1">☁️</div>
+          <div class="cloud cloud-2">☁️</div>
+          <div class="cloud cloud-3">☁️</div>
+          <div class="road-track">
+            <div class="road-line"></div>
+          </div>
+        </div>
+
+        <nav id="cast-picker" class="cast-picker" aria-label="이야기할 친구 선택"></nav><!-- 타요 반응형 인터랙티브 캐릭터 -->
+        <div id="tayo-character-wrapper" class="tayo-character-wrapper">
+          <svg id="tayo-svg" viewBox="0 0 500 420" class="tayo-svg">
+            <defs>
+              <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#3A8DFF" />
+                <stop offset="70%" stop-color="#1963E4" />
+                <stop offset="100%" stop-color="#0E4AB8" />
+              </linearGradient>
+              <linearGradient id="windowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#E8F4FD" />
+                <stop offset="100%" stop-color="#C5E3FB" />
+              </linearGradient>
+              <filter id="shadowFilter" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="0" dy="12" stdDeviation="10" flood-opacity="0.25"/>
+              </filter>
+            </defs>
+
+            <!-- 그림자 -->
+            <ellipse cx="250" cy="405" rx="190" ry="14" fill="rgba(0,0,0,0.18)" />
+
+            <!-- 차체 메인 바디 -->
+            <g id="tayo-body-group" filter="url(#shadowFilter)">
+              <!-- 바퀴 왼쪽/오른쪽 -->
+              <rect x="75" y="360" width="45" height="32" rx="8" fill="#222" />
+              <rect x="380" y="360" width="45" height="32" rx="8" fill="#222" />
+
+              <!-- 메인 파란 차체 -->
+              <rect x="70" y="55" width="360" height="325" rx="55" fill="url(#bodyGrad)" />
+              
+              <!-- 루프 흰색 라인 -->
+              <path d="M 120 55 Q 250 45 380 55" stroke="#FFFFFF" stroke-width="10" fill="none" stroke-linecap="round" />
+              
+              <!-- 상단 번호판 120 -->
+              <rect x="210" y="68" width="80" height="26" rx="13" fill="#FFFFFF" />
+              <text x="250" y="87" font-size="18" font-family="'Jua', 'Nanum Gothic', sans-serif" font-weight="bold" fill="#1963E4" text-anchor="middle">120</text>
+
+              <!-- 앞 유리창 (얼굴 영역) -->
+              <rect x="95" y="105" width="310" height="175" rx="35" fill="url(#windowGrad)" stroke="#1145A8" stroke-width="6" />
+
+              <!-- 유리창 광택 하이라이트 -->
+              <path d="M 115 125 Q 200 115 280 120" stroke="rgba(255,255,255,0.8)" stroke-width="8" stroke-linecap="round" fill="none" />
+
+              <!-- 왼쪽 눈 -->
+              <g id="left-eye-group" transform="translate(180, 185)">
+                <ellipse id="left-eye-white" cx="0" cy="0" rx="32" ry="40" fill="#FFFFFF" stroke="#0E3989" stroke-width="4"/>
+                <ellipse id="left-eye-pupil" cx="4" cy="2" rx="20" ry="26" fill="#111111" />
+                <circle cx="10" cy="-6" r="7" fill="#FFFFFF" />
+                <circle cx="-2" cy="12" r="3.5" fill="#FFFFFF" />
+                <!-- 왼쪽 눈꺼풀 (눈 깜빡임용) -->
+                <path id="left-eyelid" d="M -34 -45 Q 0 -45 34 -45 L 34 0 Q 0 0 -34 0 Z" fill="#3A8DFF" style="transform: scaleY(0); transform-origin: 0% 0%; transition: transform 0.08s;" />
+                <!-- 왼쪽 눈썹 -->
+                <path d="M -26 -44 Q 0 -54 26 -44" stroke="#0E3989" stroke-width="6" stroke-linecap="round" fill="none" />
+              </g>
+
+              <!-- 오른쪽 눈 -->
+              <g id="right-eye-group" transform="translate(320, 185)">
+                <ellipse id="right-eye-white" cx="0" cy="0" rx="32" ry="40" fill="#FFFFFF" stroke="#0E3989" stroke-width="4"/>
+                <ellipse id="right-eye-pupil" cx="-4" cy="2" rx="20" ry="26" fill="#111111" />
+                <circle cx="2" cy="-6" r="7" fill="#FFFFFF" />
+                <circle cx="-10" cy="12" r="3.5" fill="#FFFFFF" />
+                <!-- 오른쪽 눈꺼풀 (눈 깜빡임용) -->
+                <path id="right-eyelid" d="M -34 -45 Q 0 -45 34 -45 L 34 0 Q 0 0 -34 0 Z" fill="#3A8DFF" style="transform: scaleY(0); transform-origin: 0% 0%; transition: transform 0.08s;" />
+                <!-- 오른쪽 눈썹 -->
+                <path d="M -26 -44 Q 0 -54 26 -44" stroke="#0E3989" stroke-width="6" stroke-linecap="round" fill="none" />
+              </g>
+
+              <!-- 분홍 볼터치 -->
+              <ellipse cx="135" cy="240" rx="18" ry="11" fill="rgba(255, 120, 150, 0.55)" />
+              <ellipse cx="365" cy="240" rx="18" ry="11" fill="rgba(255, 120, 150, 0.55)" />
+
+              <!-- 타요 입 (립싱크 애니메이션 핵심) -->
+              <g id="tayo-mouth-group" transform="translate(250, 246)">
+                <!-- 1. 기본 미소 입 (Smile / Idle) -->
+                <path id="mouth-smile" d="M -32 -6 Q 0 28 32 -6" stroke="#C02828" stroke-width="7" stroke-linecap="round" fill="none" />
+                
+                <!-- 2. 말할 때 벌어지는 입 (Talking / Open) - 기본 hidden -->
+                <path id="mouth-open" d="M -34 -8 Q 0 38 34 -8 Q 0 6 -34 -8 Z" fill="#D32F2F" stroke="#8E1414" stroke-width="4" style="display: none;">
+                </path>
+                <!-- 입 안쪽 혀 -->
+                <path id="mouth-tongue" d="M -16 10 Q 0 4 16 10 Q 0 28 -16 10 Z" fill="#FF8A80" style="display: none;" />
+
+                <!-- 3. 크게 놀라거나 우와~ 할 때 입 (O-shape) -->
+                <ellipse id="mouth-o" cx="0" cy="8" rx="16" ry="20" fill="#D32F2F" stroke="#8E1414" stroke-width="4" style="display: none;" />
+              </g>
+
+              <!-- 범퍼 및 그릴 -->
+              <rect x="150" y="300" width="200" height="42" rx="12" fill="#EBF2FA" stroke="#1145A8" stroke-width="4" />
+              <line x1="175" y1="314" x2="325" y2="314" stroke="#90A4AE" stroke-width="4" stroke-linecap="round" />
+              <line x1="175" y1="328" x2="325" y2="328" stroke="#90A4AE" stroke-width="4" stroke-linecap="round" />
+
+              <!-- 노란 헤드라이트 -->
+              <circle id="left-headlight" cx="112" cy="318" r="18" fill="#FFF176" stroke="#FBC02D" stroke-width="4" />
+              <circle id="right-headlight" cx="388" cy="318" r="18" fill="#FFF176" stroke="#FBC02D" stroke-width="4" />
+              
+              <!-- 사이드미러 -->
+              <path d="M 70 200 L 40 215 L 42 245 L 70 240 Z" fill="#1963E4" stroke="#0E4AB8" stroke-width="4" rx="5" />
+              <path d="M 430 200 L 460 215 L 458 245 L 430 240 Z" fill="#1963E4" stroke="#0E4AB8" stroke-width="4" rx="5" />
+            </g>
+          </svg>
+        </div>
+
+        <div id="last-utterance" class="last-utterance" role="status">인식된 말: 아직 없어요</div><!-- 아이 음성 인식 상태 캡션 -->
+        <div id="child-speech-box" class="child-speech-box">
+          <span class="mic-wave">🎙️</span>
+          <span id="child-transcript">타요가 친구 목소리를 듣고 있어요...</span>
+        </div>
+      </main>
+
+      <div id="tayo-speech-bubble" class="speech-bubble" aria-live="polite">
+        <p id="tayo-subtitle">"안녕 친구야! 나는 꼬마버스 타요야! 빵빵~"</p>
+      </div>
+
+      <!-- 우측 상단 PIP: 아이 웹캠 화면 (FaceTime 스타일) -->
+      <div id="pip-cam-wrapper" class="pip-camera">
+        <video id="user-webcam" autoplay playsinline muted></video>
+        <div class="pip-label">내 얼굴 👶</div>
+        <div id="webcam-fallback" class="webcam-fallback">
+          <span>카메라 준비 중...</span>
+        </div>
+      </div>
+
+      <form id="text-form" class="text-chat"><input id="text-input" maxlength="500" placeholder="부모님 글자 입력 (음성인식 대체)" aria-label="타요에게 할 말"><button type="submit">보내기</button></form><!-- 하단 통화 컨트롤러 -->
+      <footer class="call-controls">
+        <button id="btn-toggle-mic" class="ctrl-btn active" title="마이크 켜기/끄기">
+          <span class="ctrl-icon">🎙️</span>
+          <span class="ctrl-text">마이크</span>
+        </button>
+        <button id="btn-song" class="ctrl-btn" type="button" title="함께 노래 부르기"><span>🎵</span><span class="ctrl-text">노래</span></button>
+        <button id="btn-mini-games" class="ctrl-btn" type="button">🎮 미니게임</button>
+        <button id="btn-vehicles" class="ctrl-btn" type="button">🚗 탈것</button>
+        <button id="btn-marine" class="ctrl-btn" type="button">🐬 바다동물</button>
+        <button id="btn-tayo-talk" class="ctrl-btn tayo-action-btn" title="타요에게 먼저 말 걸게 하기">
+          <span class="ctrl-icon">🚌</span>
+          <span class="ctrl-text">타요 말하기</span>
+        </button>
+        <button id="btn-end-call" class="ctrl-btn end-btn" title="통화 종료">
+          <span class="ctrl-icon">📞</span>
+          <span class="ctrl-text">통화 종료</span>
+        </button>
+      </footer>
+    </div>
+
+    <section id="mini-game-panel" class="mini-game-panel" role="dialog" aria-modal="true" aria-label="친구와 미니게임" hidden><div id="mini-game-content" class="mini-game-content"></div></section>
+    <section id="vehicle-library-panel" class="vehicle-library-panel" role="dialog" aria-modal="true" aria-label="탈것 알아보기" hidden><div id="vehicle-library-content" class="vehicle-library-content"></div></section>
+    <section id="marine-library-panel" class="vehicle-library-panel marine-library-panel" role="dialog" aria-modal="true" aria-label="해양동물 알아보기" hidden><div id="marine-library-content" class="vehicle-library-content"></div></section>
+    <!-- 3. 설정 모달 (부모님용) -->
+    <div id="settings-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="부모님 설정">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>설정 (부모님용 안내)</h2>
+          <button id="btn-close-settings" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Ollama 무료 로컬 AI · 3세용 짧은 대화입니다. 작은 모델은 엉뚱한 답을 할 수 있으니 부모님이 함께 사용해주세요.</p>
+          <div class="form-group"><label for="chat-provider">대화 방식</label><select id="chat-provider"><option value="ollama">Ollama · 무료 로컬 대화</option><option value="openai">OpenAI API · 유료 온라인 대화</option></select></div>
+          <div class="form-group"><label for="openai-key">OpenAI API 키</label><input id="openai-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-… 키를 붙여넣으세요"><small id="api-key-status">키는 이 PC의 서버에 저장됩니다. 저장 후 입력칸은 비워집니다.</small></div>
+          <p class="modal-desc">OpenAI 선택 시 인식된 말과 최근 대화, 놀이 설정을 OpenAI로 보내며 API 사용료가 발생합니다. 카메라와 녹음 원본은 전송하지 않습니다. 저장하기에서 키 권한을 확인하며, 이 확인은 대화를 생성하지 않습니다.</p>
+          <div class="form-group"><label for="speech-recognition">아이 음성인식</label><select id="speech-recognition"><option value="off">끄기 · 5초 기다리는 상황극 모드 (기본)</option><option value="on">켜기 · 아이 말에 답하는 대화 모드</option></select><small>끄면 마이크를 사용하지 않습니다. 캐릭터가 말한 뒤 5초 기다렸다가 다음 장면을 계속합니다. 아이는 소리나 몸짓으로 자유롭게 참여해도 됩니다.</small></div>
+          <div class="form-group"><label for="ai-stories">새 상황극 만들기</label><select id="ai-stories"><option value="on">AI가 새 이야기를 계속 만들기</option><option value="off">준비된 상황극을 차례로 하기</option></select><small>음성인식이 꺼진 상황극 모드에서 적용됩니다. AI는 준비된 배경과 동작을 조합해 새 이야기를 만듭니다. OpenAI 선택 시 생성 요금이 발생하며, 연결 실패 시 기본 상황극을 이어갑니다.</small></div>
+          <div class="form-group"><label for="child-name">아이 별명</label><input id="child-name" maxlength="20" value="친구"></div>
+          <div class="form-group"><label for="tts-engine">목소리 방식 · 무료 / 유료</label><select id="tts-engine"><option value="supertonic">무료 · Supertonic 로컬 AI 목소리</option><option value="windows">무료 · Windows 기본 목소리</option><option value="openai">유료 · OpenAI 캐릭터별 목소리</option></select><small id="voice-mode-help">대화 AI와 별도로 선택합니다.</small></div><div class="form-group"><label for="tts-voice">Supertonic 로컬 목소리</label><select id="tts-voice"><option value="M3">남성 M3 (기본)</option><option value="M1">남성 M1</option><option value="M2">남성 M2</option><option value="F3">여성 F3</option></select></div><div class="form-group"><label for="voice-select">예비 목소리: Windows 한국어 오프라인 목소리</label><select id="voice-select"></select><small>목소리가 없으면 Windows 설정 → 시간 및 언어 → 음성에서 한국어 음성을 설치해주세요.</small></div>
+          <div class="form-group"><label for="model-select">Ollama 로컬 모델</label><select id="model-select"><option value="qwen3.5:9b">Qwen3.5 9B · 품질 우선 (느림)</option><option value="qwen3:14b">Qwen3 14B · 최대 품질 후보 (응답 느림)</option><option value="qwen3:4b-instruct-2507-q4_K_M">Qwen3 4B Instruct · 빠른 대화 (기본)</option><option value="qwen3:1.7b">가벼운 1.7B · 대화 품질 제한</option><option value="qwen3:0.6b">가벼운 0.6B · 설명 오류가 많음</option></select><small id="model-mode-help">Ollama를 선택했을 때만 사용하는 모델입니다.</small></div><div class="form-group"><label for="call-limit">놀이 시간</label><select id="call-limit"><option value="3">3분</option><option value="5" selected>5분</option><option value="10">10분</option></select></div>
+          <p class="modal-desc">OpenAI 음성은 타요·로기·라니·가니·프랭크·패트마다 목소리와 억양이 바뀝니다. 원작 성우가 아닌 AI 합성 목소리이며 답변 문장을 음성 API로 전송합니다. 음성 사용료가 추가됩니다.</p><p id="setup-status" role="status">처음에는 상위 폴더의 Ollama_준비.bat를 실행해주세요. 모델 다운로드에는 인터넷과 여유 디스크 공간이 필요합니다.</p>
+          <button id="btn-check-ollama" class="primary-btn">연결 확인</button>
+          <p class="modal-desc">음성인식은 이 PC에서 실행합니다. 목소리는 선택한 음성 엔진에서 생성합니다. 웹캠은 화면에만 표시하고 녹음 원본은 파일에 저장하지 않습니다. 원작 성우 음성이 아닌 로컬 합성 목소리를 사용합니다.</p>
+          <p id="settings-status" role="alert"></p>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-exit-app" class="exit-app-btn">⏻ 프로그램 완전 종료</button><button id="btn-save-settings" class="primary-btn">저장하기</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="scene-visuals.mjs"></script><script type="module" src="characters.mjs"></script><script src="tayo-character.js"></script>
+  <script type="module" src="songs.mjs"></script><script src="song-player.js"></script>
+  <script type="module" src="mini-games.mjs"></script>
+  <script type="module" src="vehicles.mjs"></script>
+  <script type="module" src="marine.mjs"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

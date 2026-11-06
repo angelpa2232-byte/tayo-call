@@ -1,0 +1,832 @@
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Jua', 'Noto Sans KR', sans-serif;
+  background-color: #1a1a2e;
+  color: #333;
+}
+
+.app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 화면 공통 */
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.screen.active {
+  display: flex;
+  opacity: 1;
+}
+
+/* 1. 수신 대기 화면 (Incoming Call) */
+.incoming-screen {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #1b3b6f 0%, #212d40 100%);
+  color: #fff;
+  z-index: 100;
+}
+
+.incoming-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(58, 141, 255, 0.25) 0%, transparent 70%);
+  animation: pulse-bg 3s infinite alternate;
+}
+
+@keyframes pulse-bg {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.2); opacity: 0.9; }
+}
+
+.incoming-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tayo-call-avatar {
+  margin-bottom: 25px;
+}
+
+.avatar-circle {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: #3A8DFF;
+  border: 6px solid #FFFFFF;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pulse-ring {
+  animation: avatar-bounce 2s infinite ease-in-out;
+}
+
+@keyframes avatar-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.05); }
+}
+
+.caller-name {
+  font-size: 2.8rem;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  color: #FFEB3B;
+}
+
+.call-subtitle {
+  font-size: 1.5rem;
+  color: #E1F5FE;
+  margin-bottom: 8px;
+}
+
+.call-hint {
+  font-size: 1.2rem;
+  color: #B3E5FC;
+  margin-bottom: 40px;
+}
+
+.call-actions {
+  display: flex;
+  gap: 30px;
+}
+
+.action-btn {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1.2rem;
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.accept-btn {
+  background: #00E676;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  box-shadow: 0 8px 25px rgba(0, 230, 118, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: ring-vibrate 1.2s infinite ease-in-out;
+}
+
+.accept-btn span {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.accept-btn .btn-icon {
+  width: 44px;
+  height: 44px;
+}
+
+.accept-btn:hover {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+.accept-btn:active {
+  transform: scale(0.95);
+}
+
+@keyframes ring-vibrate {
+  0% { transform: rotate(0deg) scale(1); }
+  10% { transform: rotate(-12deg) scale(1.05); }
+  20% { transform: rotate(12deg) scale(1.05); }
+  30% { transform: rotate(-8deg) scale(1.05); }
+  40% { transform: rotate(8deg) scale(1.05); }
+  50%, 100% { transform: rotate(0deg) scale(1); }
+}
+
+/* 2. 통화 진행 화면 (Call Screen) */
+.call-screen {
+  flex-direction: column;
+  background: #E1F5FE;
+}
+
+/* 헤더 */
+.call-header {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 50;
+  pointer-events: auto;
+}
+
+.call-status {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 8px 18px;
+  border-radius: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #00E676;
+  box-shadow: 0 0 10px #00E676;
+  animation: blink-live 1.5s infinite;
+}
+
+@keyframes blink-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.status-name {
+  font-size: 1.2rem;
+  color: #1963E4;
+  font-weight: bold;
+}
+
+.call-timer {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.header-tools {
+  display: flex;
+  gap: 12px;
+}
+
+.tool-btn {
+  background: rgba(255, 255, 255, 0.88);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.tool-btn:hover {
+  transform: scale(1.08);
+  background: #FFFFFF;
+}
+
+/* 타요 메인 표시 영역 */
+.tayo-display-area {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* 풍경 배경 */
+.scenery-background {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #81D4FA 0%, #B3E5FC 60%, #AED581 60%, #81C784 100%);
+  z-index: 1;
+}
+
+.cloud {
+  position: absolute;
+  font-size: 3.5rem;
+  opacity: 0.8;
+  animation: drift-cloud linear infinite;
+}
+
+.cloud-1 { top: 8%; left: -10%; animation-duration: 38s; }
+.cloud-2 { top: 22%; left: -20%; animation-duration: 48s; animation-delay: 15s; }
+.cloud-3 { top: 15%; left: -15%; animation-duration: 32s; animation-delay: 8s; }
+
+@keyframes drift-cloud {
+  0% { transform: translateX(-10vw); }
+  100% { transform: translateX(110vw); }
+}
+
+.road-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 38%;
+  background: #455A64;
+  border-top: 10px solid #ECEFF1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.road-line {
+  width: 100%;
+  height: 12px;
+  background: repeating-linear-gradient(90deg, #FFEB3B 0, #FFEB3B 50px, transparent 50px, transparent 100px);
+  animation: move-road 1.2s linear infinite;
+}
+
+@keyframes move-road {
+  0% { background-position: 0 0; }
+  100% { background-position: -100px 0; }
+}
+
+/* 타요 캐릭터 SVG 래퍼 */
+.tayo-character-wrapper {
+  position: relative;
+  z-index: 10;
+  width: 580px;
+  max-width: 90vw;
+  height: 480px;
+  max-height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  filter: drop-shadow(0 15px 25px rgba(0,0,0,0.25));
+  transition: transform 0.1s ease-out;
+}
+
+.tayo-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* 타요 차체 바운스 애니메이션 */
+.tayo-bounce {
+  animation: tayo-gentle-bounce 1.8s infinite ease-in-out;
+}
+
+@keyframes tayo-gentle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.tayo-talking-bounce {
+  animation: tayo-talking-motion 0.4s infinite alternate ease-in-out;
+}
+
+@keyframes tayo-talking-motion {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-1.5deg); }
+  100% { transform: translateY(-4px) rotate(1.5deg); }
+}
+
+/* 타요 자막 말풍선 */
+.speech-bubble {
+  position: absolute;
+  bottom: 120px;
+  background: #FFFFFF;
+  padding: 18px 30px;
+  border-radius: 35px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  border: 4px solid #1963E4;
+  z-index: 20;
+  max-width: 80%;
+  text-align: center;
+  animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 16px 16px 16px;
+  border-style: solid;
+  border-color: transparent transparent #1963E4 transparent;
+}
+
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 12px 12px 12px;
+  border-style: solid;
+  border-color: transparent transparent #FFFFFF transparent;
+}
+
+.speech-bubble p {
+  font-size: 1.8rem;
+  color: #1565C0;
+  word-break: keep-all;
+  line-height: 1.4;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 아이 음성 인식 자막 상태바 */
+.child-speech-box {
+  position: absolute;
+  top: 80px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 22px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  color: #333;
+}
+
+.mic-wave {
+  animation: mic-pulse 1s infinite alternate;
+}
+
+@keyframes mic-pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.3); }
+}
+
+/* 우측 상단 웹캠 PIP */
+.pip-camera {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 220px;
+  height: 165px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border: 4px solid #FFFFFF;
+  background: #263238;
+  z-index: 60;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pip-camera:hover {
+  transform: scale(1.05);
+}
+
+.pip-camera video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* 거울 모드 */
+}
+
+.pip-label {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+
+.webcam-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ECEFF1;
+  font-size: 0.95rem;
+  background: #37474F;
+  text-align: center;
+  padding: 10px;
+}
+
+/* 하단 컨트롤러 */
+.call-controls {
+  position: absolute;
+  bottom: 25px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  z-index: 50;
+}
+
+.ctrl-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  outline: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: inherit;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+  transition: transform 0.15s, background 0.15s;
+}
+
+.ctrl-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+}
+
+.ctrl-btn:active {
+  transform: translateY(1px);
+}
+
+.ctrl-icon {
+  font-size: 1.6rem;
+}
+
+.ctrl-btn.active {
+  background: #E8F5E9;
+  color: #2E7D32;
+  border: 2px solid #81C784;
+}
+
+.ctrl-btn.muted {
+  background: #FFEBEE;
+  color: #C62828;
+  border: 2px solid #EF9A9A;
+}
+
+.tayo-action-btn {
+  background: #FFD54F;
+  color: #5D4037;
+  font-weight: bold;
+}
+
+.end-btn {
+  background: #FF5252;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.end-btn:hover {
+  background: #FF1744;
+}
+
+/* 3. 모달 (설정 창) */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  z-index: 200;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-card {
+  background: #FFFFFF;
+  width: 90%;
+  max-width: 480px;
+  border-radius: 25px;
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  animation: pop-in 0.25s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-header h2 {
+  font-size: 1.6rem;
+  color: #1963E4;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.modal-desc {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"] {
+  padding: 10px 14px;
+  border: 2px solid #DDD;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: #1963E4;
+}
+
+.form-group small {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.modal-footer {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.primary-btn {
+  background: #1963E4;
+  color: #FFF;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  background: #0E4AB8;
+}
+
+
+.modal-card { max-height: 92vh; overflow-y: auto; }
+.form-group select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 12px; font: inherit; background: white; }
+.form-group input { user-select: text; -webkit-user-select: text; }
+#entry-status { max-width: 480px; color: white; margin: 12px auto; }
+#settings-status { color: #b3261e; }
+button:disabled { opacity: .55; cursor: wait; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 4px solid #ffcb3d; outline-offset: 4px; }
+.header-tools { flex-wrap: wrap; }
+@media (max-width: 600px) { .call-header { padding: 10px; } .tool-btn { font-size: 12px; padding: 8px; } .pip-camera { width: 110px; height: 85px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+.text-chat { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; width: min(90%, 550px); z-index: 20; }
+.text-chat input { flex: 1; min-width: 0; padding: 12px; border-radius: 12px; border: 2px solid #b7d9f3; user-select: text; }
+.text-chat button { border: 0; border-radius: 12px; padding: 12px; background: #1963e4; color: white; }
+.speech-bubble { max-height: 24vh; overflow-y: auto; }
+
+.speech-bubble { bottom: 190px; }
+.pip-camera { top: 82px; }
+.child-speech-box { max-width: 65%; overflow-wrap: anywhere; }
+@media (max-height: 650px) { .speech-bubble { bottom: 178px; padding: 10px 18px; } .speech-bubble p { font-size: 1.15rem; } .tayo-svg { max-height: 44vh; } }
+.last-utterance { position: absolute; left: 20px; top: 135px; max-width: 60%; border-radius: 12px; background: rgba(255,255,255,.94); color: #24496b; padding: 8px 12px; font-size: 14px; z-index: 16; overflow-wrap: anywhere; }
+
+.tayo-character-wrapper { width: min(66vw, 610px); height: min(65vh, 610px); animation: none !important; }
+.character-stage { position: relative; width: 100%; aspect-ratio: 1; transform-origin: 50% 80%; animation: actor-idle 4s ease-in-out infinite; }
+.character-stage img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 14px 12px #13395b30); }
+.actor-mouth { position: absolute; transform: translate(-50%,-50%); border-radius: 35% 35% 48% 48%; background: #1f111b; border: 3px solid #dbe7ef; box-shadow: inset 0 4px 0 #ffffff33; transition: transform 65ms; pointer-events: none; overflow: hidden; }
+.actor-mouth span { position: absolute; bottom: -12%; left: 22%; width: 56%; height: 48%; border-radius: 50%; background: #ed7284; }
+.actor-mouth[data-shape="smile"] { opacity: 0; }
+.actor-mouth[data-shape="o"] { transform: translate(-50%,-50%) scale(.6,1.35); }
+.actor-mouth[data-shape="open"] { transform: translate(-50%,-50%) scale(1,1.05); }
+.actor-eyes span { position: absolute; transform: translate(-50%,-50%) scaleY(0); background: var(--actor-color); border-radius: 50%; pointer-events: none; }
+.blink .actor-eyes span { transform: translate(-50%,-50%) scaleY(1); }
+.actor-shadow { position: absolute; left: 22%; bottom: 12%; width: 56%; height: 3%; border-radius: 50%; background: #08273922; filter: blur(6px); z-index: -1; }
+.character-stage.speaking { animation: actor-talk .45s ease-in-out infinite; }
+.character-stage.arriving { animation: actor-arrive .75s ease-out, actor-idle 4s .75s infinite; }
+.character-stage.rolling { animation: actor-roll .55s ease-in-out infinite; }
+.character-stage.thinking { animation: actor-think 3s ease-in-out infinite; }
+.character-stage.excited,.character-stage.honk { animation: actor-excited .65s ease-in-out 2; }
+.actor-siren { display: none; position: absolute; width: 16%; height: 6%; top: 40%; left: 28%; background: radial-gradient(ellipse,#ff453aa0,transparent 70%); }
+[data-actor="pat"] .actor-siren { top: 28%; left: 40%; }
+.has-siren.rolling .actor-siren,.has-siren.honk .actor-siren { display: block; animation: actor-light 1.4s infinite; }
+@keyframes actor-idle { 50% {transform: translateY(-6px) rotate(.7deg);} }
+@keyframes actor-talk { 50% {transform: translateY(-4px) scale(1.012);} }
+@keyframes actor-arrive { from {opacity:0;transform:translateX(140px) scale(.85);} to {opacity:1;transform:translateX(0) scale(1);} }
+@keyframes actor-roll { 50% {transform:translateX(8px) translateY(-3px) rotate(-1deg);} }
+@keyframes actor-think { 50% {transform:rotate(-2deg);} }
+@keyframes actor-excited { 50% {transform:translateY(-12px) rotate(1deg);} }
+@keyframes actor-light { 50% {opacity:.3;} }
+.cast-picker { position: absolute; left: 14px; top: 180px; z-index: 25; display:flex; flex-direction:column; gap:5px; }
+.cast-picker button { border:2px solid white; border-radius:14px; background:#ffffffdc; padding:5px 9px; font:inherit; color:#24496b; min-height:40px; }
+.cast-picker button[aria-pressed="true"] { border-color:#1963e4; background:#dbedff; }
+.cast-picker img { width:32px; height:32px; object-fit:contain; vertical-align:middle; }
+@media(max-width:600px) { .cast-picker {top:auto;bottom:170px;left:6px;flex-direction:row;max-width:95%;overflow-x:auto;} .cast-picker button {flex-shrink:0;font-size:12px;} .cast-picker img {width:22px;height:22px;} .tayo-character-wrapper {width:90vw;height:auto;} }
+@media(prefers-reduced-motion:reduce) { .character-stage,.actor-siren {animation:none !important;} }
+.tayo-character-wrapper { position:absolute; top:70px; left:50%; transform:translateX(-50%); width:min(64vw,calc(100vh - 390px),520px); height:auto; }
+.speech-bubble { bottom:180px; max-height:110px; padding:12px 20px; }
+.speech-bubble p { font-size:1.25rem; }
+@media(max-width:600px) { .tayo-character-wrapper { width:min(82vw,calc(100vh - 380px)); } }
+.scene-art { position:absolute; inset:0; z-index:0; overflow:hidden; }
+.scene-art svg {width:100%;height:100%;}
+.scene-caption { position:absolute; top:15px; left:50%; transform:translateX(-50%); background:#ffffffdb; border-radius:18px; padding:8px 16px; font-size:17px; color:#2f596e; z-index:14; }
+.scene-choices {position:absolute;bottom:235px;right:15px;display:flex;flex-direction:column;gap:6px;z-index:26;}
+.scene-choices button {background:#fff5c8;border:2px solid #f4cd5a;border-radius:18px;padding:10px 15px;font:inherit;color:#5c4926;}
+.scene-water path { animation:water-flow .65s linear infinite; }
+.scene-flame { transform-origin:center bottom;animation:flame-sway 1.6s ease-in-out infinite; }
+.scene-bubbles { animation:bubbles-float 3s ease-in-out infinite; }
+@keyframes water-flow {to{stroke-dashoffset:-66;}}
+@keyframes flame-sway {50%{opacity:.75;}}
+@keyframes bubbles-float {50%{opacity:.5;}}
+@media(prefers-reduced-motion:reduce){.scene-water path,.scene-flame,.scene-bubbles{animation:none;}}
+
+.tayo-character-wrapper.mission-portrait {top:auto;bottom:185px;left:15%;width:min(23vw,175px);z-index:15;}
+.mission-drive {animation:mission-arrive 2.4s ease-out both;}
+.mission-beacon {animation:mission-flash .45s alternate infinite;}
+.scene-extinguishing {transform-box:fill-box;transform-origin:center bottom;animation:mission-extinguish 5s linear forwards;}
+.scene-repair-tools {animation:mission-tools .8s ease-in-out infinite alternate;}
+.scene-tow {animation:mission-tow 4s ease-in-out forwards;}
+.scene-success {animation:mission-success .6s ease-out both;}
+@keyframes mission-arrive {from{transform:translateX(-380px);}to{transform:translateX(0);}}
+@keyframes mission-flash {to{opacity:.15;}}
+@keyframes mission-extinguish {to{transform:scale(.15);opacity:.3;}}
+@keyframes mission-tools {to{transform:translateY(-9px);}}
+@keyframes mission-tow {to{transform:translateX(-100px);}}
+@keyframes mission-success {from{opacity:0;}to{opacity:1;}}
+@media(max-width:600px){.tayo-character-wrapper.mission-portrait{left:18%;width:110px;}.scene-caption{font-size:14px;max-width:85%;white-space:nowrap;}}
+@media(prefers-reduced-motion:reduce){.mission-drive,.mission-beacon,.scene-extinguishing,.scene-repair-tools,.scene-tow,.scene-success{animation:none;}}
+
+.scene-art {background:#d8eff8;}
+
+.scene-caption{max-width:85%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.play-rain{animation:play-rain .7s linear infinite;}
+.play-butterfly{animation:play-float 1.5s ease-in-out infinite alternate;}
+.play-star{animation:play-twinkle 1.5s ease-in-out infinite alternate;}
+.play-target{transform-box:fill-box;transform-origin:center;animation:play-target 1.3s ease-in-out infinite alternate;}
+.play-crossing{animation:play-crossing 4s ease-in-out forwards;}
+.play-pickup{animation:play-pickup 3s ease-in-out forwards;}
+.play-move-branch{animation:play-branch 3s ease-in-out forwards;}
+@keyframes play-rain{to{transform:translateY(25px);opacity:.4;}}
+@keyframes play-float{to{opacity:.6;}}
+@keyframes play-twinkle{to{opacity:.35;}}
+@keyframes play-target{to{transform:rotate(8deg);}}
+@keyframes play-crossing{to{transform:translateX(130px);}}
+@keyframes play-pickup{to{transform:translate(-150px,-80px);opacity:.2;}}
+@keyframes play-branch{to{transform:translate(50px,-100px);}}
+@media(prefers-reduced-motion:reduce){.play-rain,.play-butterfly,.play-star,.play-target,.play-crossing,.play-pickup,.play-move-branch{animation:none;}}
+
+.exit-app-btn{border:2px solid #ca5667;border-radius:12px;padding:10px 14px;background:#fff0f1;color:#983a4c;font:inherit;cursor:pointer;}
+
+.song-panel[hidden]{display:none;}
+.song-panel{position:absolute;inset:12px 12px 115px;z-index:70;background:#fff8ec;border:4px solid #ffd564;border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;align-items:center;overflow:auto;color:#27364b;}
+.song-panel h2{margin:0;font-size:clamp(20px,3vw,30px);}
+.song-host{width:min(100%,720px);aspect-ratio:16/9;min-height:200px;background:#171d2b;border-radius:12px;overflow:hidden;flex:1;}
+.song-host iframe{width:100%;height:100%;min-height:200px;border:0;}
+.song-panel p{margin:0;text-align:center;}
+.song-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.song-actions button{font:inherit;font-size:20px;padding:12px 20px;border:0;border-radius:16px;background:#ffe07a;color:#27364b;cursor:pointer;}
+.song-actions button:last-child{background:#b8e9f8;}
+.song-panel a{font-size:13px;color:#42637e;}
+
+/* Cast selection stays available during speech, scenes and songs. */
+.cast-picker{z-index:85;pointer-events:auto;}
+.cast-picker button{touch-action:manipulation;cursor:pointer;}
+.scene-art{pointer-events:none;}
+
+/* Separate stage and reading area: long subtitles never cover a character. */
+.call-screen { display:none; padding:76px 12px 12px; gap:10px; grid-template-rows:minmax(0,1fr) auto auto auto; }
+.call-screen.active { display:grid; }
+.tayo-display-area { grid-row:1; min-height:0; height:auto; border-radius:24px; isolation:isolate; background:#d8eff8; }
+.speech-bubble { grid-row:2; position:relative; inset:auto; width:min(100%,1100px); max-width:100%; max-height:18vh; margin:0 auto; padding:12px 22px; border-radius:22px; flex-shrink:0; animation:none; }
+.speech-bubble::before,.speech-bubble::after { display:none; }
+.speech-bubble p { font-size:clamp(17px,1.7vw,26px); line-height:1.5; overflow-wrap:anywhere; }
+.text-chat { grid-row:3; position:relative; inset:auto; transform:none; margin:0 auto; width:min(100%,760px); }
+.call-controls { grid-row:4; position:relative; inset:auto; width:100%; gap:clamp(8px,2vw,24px); flex-wrap:wrap; }
+.ctrl-btn { padding:10px 20px; font-size:clamp(14px,1.5vw,20px); }
+.tayo-character-wrapper { top:auto; bottom:8%; left:28%; width:min(46vw,48vh,500px); height:auto; max-height:90%; max-width:48%; }
+.tayo-character-wrapper.mission-portrait { top:10px; bottom:auto; left:12px; transform:none; width:clamp(64px,9vw,110px); max-width:15%; height:auto; }
+.scene-caption { top:10px; max-width:68%; font-size:clamp(12px,1.2vw,17px); }
+.child-speech-box { top:52px; font-size:clamp(12px,1.2vw,17px); }
+.last-utterance { top:96px; left:12px; font-size:12px; max-width:48%; }
+.cast-picker { top:138px; left:10px; max-height:calc(100% - 148px); overflow-y:auto; }
+.cast-picker button { min-height:32px; padding:3px 7px; font-size:13px; }
+.cast-picker img { width:26px; height:26px; }
+.scene-choices { bottom:12px; right:12px; }
+@media(max-width:700px) {
+ .call-screen { padding:80px 6px 8px; gap:6px; }
+ .speech-bubble { padding:8px 12px; }
+ .call-header { top:8px; left:6px; right:6px; gap:6px; }
+ .call-status { padding:6px 9px; gap:5px; flex-wrap:wrap; }
+ .status-name,.call-timer { font-size:12px; }
+ .tool-btn { font-size:12px; padding:7px; }
+ .header-tools { gap:4px; }
+ .cast-picker { top:auto; bottom:6px; max-height:44px; flex-direction:row; max-width:96%; overflow-x:auto; }
+ .cast-picker button { flex-shrink:0; font-size:12px; }
+ .tayo-character-wrapper { bottom:44px; width:min(65vw,43vh); max-width:65%; }
+ .tayo-character-wrapper.mission-portrait { top:40px; bottom:auto; width:65px; }
+ .ctrl-btn { padding:8px 12px; gap:5px; }
+ .ctrl-icon { font-size:20px; }
+ .scene-choices { bottom:52px; }
+}
+@media(max-height:650px) {
+ .call-screen { padding-top:64px; gap:5px; }
+ .speech-bubble { max-height:18vh; padding:6px 12px; }
+ .speech-bubble p { font-size:17px; }
+ .text-chat input,.text-chat button { padding:7px 10px; }
+ .ctrl-btn { padding:7px 14px; }
+ .cast-picker { top:auto; bottom:5px; flex-direction:row; max-height:40px; max-width:96%; overflow:auto; }
+ .cast-picker button { flex-shrink:0; }
+}

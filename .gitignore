@@ -1,0 +1,10 @@
+/dist/
+/test1/
+/tayo-call/runtime/
+/tayo-call/models/
+/tayo-call/.venv/
+__pycache__/
+*.exe
+*.log
+.env
+.env.*

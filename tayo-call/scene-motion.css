@@ -1,0 +1,41 @@
+.motion-move{animation:scene-move 4s ease-in-out both;}
+.motion-appear{animation:scene-appear 1.4s ease-out both;transform-box:fill-box;transform-origin:center;}
+.motion-sway{animation:scene-sway 1.4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center bottom;}
+.motion-spin{animation:scene-spin 2.4s linear infinite;transform-box:fill-box;transform-origin:center;}
+.motion-wave{animation:scene-wave 1.5s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center;}
+.scene-waiting *, .scene-suspended *{animation-play-state:paused!important;}
+.scene-landscape{animation:scene-landscape 7s ease-in-out both;}
+.scene-road-lines{animation:scene-road 1.2s linear infinite;}
+.repair-jack{animation:repair-jack 1.5s ease-out both;}
+.repair-loosen{animation:repair-wrench 1s ease-in-out 3;transform-box:fill-box;transform-origin:center;}
+.repair-tighten{animation:repair-wrench .65s ease-in-out 4 2s;transform-box:fill-box;transform-origin:center;}
+.repair-remove{animation:repair-remove 4s ease-in-out both;}
+.repair-install{animation:repair-install 2.2s ease-out both;}
+.repair-wobble{animation:repair-wobble .5s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center;}
+.repair-rinse{animation:repair-rinse 4s ease-in both;}
+.cat-ladder-grow{animation:cat-ladder 3s ease-in-out both;transform-box:fill-box;transform-origin:left bottom;}
+.cat-ladder-fold{animation:cat-ladder-fold 2s ease-in-out both;transform-box:fill-box;transform-origin:left bottom;}
+@keyframes scene-move{from{transform:translate(var(--sx,0px),var(--sy,0px));}to{transform:translate(var(--mx,0px),var(--my,0px));}}
+@keyframes scene-appear{from{opacity:0;transform:scale(.8);}to{opacity:1;transform:scale(1);}}
+@keyframes scene-sway{from{transform:rotate(-5deg);}to{transform:rotate(6deg);}}
+@keyframes scene-spin{to{transform:rotate(360deg);}}
+@keyframes scene-wave{from{transform:translateY(-4px);}to{transform:translateY(5px);}}
+@keyframes scene-landscape{to{transform:translateX(-65px);}}
+@keyframes scene-road{to{stroke-dashoffset:120;}}
+@keyframes repair-jack{from{transform:translateY(0);}to{transform:translateY(-18px);}}
+@keyframes repair-wrench{0%,100%{transform:rotate(-20deg);}50%{transform:rotate(35deg);}}
+@keyframes repair-remove{0%,35%{transform:translate(0,0);}100%{transform:translate(90px,60px) rotate(50deg);}}
+@keyframes repair-install{from{transform:translate(100px,45px) rotate(70deg);}to{transform:translate(0,0) rotate(0);}}
+@keyframes repair-wobble{to{transform:rotate(7deg) scaleY(.9);}}
+@keyframes repair-rinse{to{opacity:0;transform:translateY(65px);}}
+@keyframes cat-ladder{from{transform:scale(.45);}to{transform:scale(1);}}
+@keyframes cat-ladder-fold{to{transform:scale(.35);opacity:.4;}}
+@media(prefers-reduced-motion:reduce){.scene-art *{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;}}
+
+.motion-move[data-motion="passengers-board"],.motion-move[data-motion="second-passenger-boards"]{animation-name:scene-move,scene-board;}
+@keyframes scene-board{0%,75%{opacity:1;}100%{opacity:0;}}
+
+.motion-hose-coil{stroke-dasharray:100;animation:hose-coil 4s linear both;}
+@keyframes hose-coil{from{stroke-dashoffset:100;}to{stroke-dashoffset:0;}}
+[data-play-scene="detour"][data-play-stage="2"] [data-motion="bus-drive"]{animation-name:detour-drive;}
+@keyframes detour-drive{0%{transform:translate(0,0);}45%{transform:translate(110px,65px);}100%{transform:translate(460px,20px);}}
